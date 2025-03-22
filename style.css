@@ -104,3 +104,9 @@ input:focus {
   margin: 0px;
   width: 80%;
 }
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4a4e69;
+  margin: 10px 0;
+}

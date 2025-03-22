@@ -43,29 +43,49 @@ const fakeVerses = [
     reference: "Proverbs 17:24",
   },
 ];
+// Variables
+let timeLeft = 15;
+let timer = null;
 let score = 0;
 let currentVerse = null;
-function displayVerse(verse) {
-  document.getElementById("verse-text").textContent = verse.text;
-  document.getElementById("reference").textContent = verse.reference;
-}
-console.log("real verse : ", realVerses[0].text + realVerses[0].reference);
-console.log("fake verse :", fakeVerses[0].text + realVerses[0].reference);
+let usedVerses = [];
+let questionCount = 0;
+const TOTAL_QUESTIONS = 15;
+
 function getRandomVerse() {
   const isReal = Math.random() < 0.5;
   const verses = isReal ? realVerses : fakeVerses;
-  currentVerse = verses[Math.floor(Math.random() * verses.length)];
-  displayVerse(currentVerse); // Add this line back
-  return verses === realVerses;
+  const availableVerses = verses.filter((verse) => !usedVerses.includes(verse));
+
+  if (availableVerses.length === 0) {
+    const otherVerses = isReal ? fakeVerses : realVerses;
+    const otherAvailable = otherVerses.filter(
+      (verse) => !usedVerses.includes(verse)
+    );
+    if (otherAvailable.length > 0) {
+      currentVerse =
+        otherAvailable[Math.floor(Math.random() * otherAvailable.length)];
+    }
+  } else {
+    currentVerse =
+      availableVerses[Math.floor(Math.random() * availableVerses.length)];
+  }
+
+  if (currentVerse) {
+    usedVerses.push(currentVerse);
+    displayVerse(currentVerse);
+    startTimer();
+  }
+  return realVerses.includes(currentVerse);
 }
 
 function checkAnswer(userGuessedReal) {
+  clearInterval(timer);
   const isReal = realVerses.includes(currentVerse);
   const messageElement = document.getElementById("message");
   const scoreElement = document.getElementById("score");
 
   if (messageElement && scoreElement) {
-    // Check if elements exist
     if (userGuessedReal === isReal) {
       score++;
       scoreElement.textContent = `Score: ${score}`;
@@ -76,15 +96,62 @@ function checkAnswer(userGuessedReal) {
       messageElement.style.color = "#e74c3c";
     }
 
+    questionCount++;
+
+    if (questionCount >= TOTAL_QUESTIONS) {
+      endGame();
+      return;
+    }
+
     setTimeout(() => {
       messageElement.textContent = "";
     }, 2000);
+
+    getRandomVerse();
+  }
+}
+
+function endGame() {
+  clearInterval(timer);
+  document.getElementById("verse-text").textContent = `Quiz Complete!`;
+  document.getElementById(
+    "reference"
+  ).textContent = `Final Score: ${score} out of ${TOTAL_QUESTIONS}`;
+  document.getElementById("timer").style.display = "none";
+  document.getElementById("true").style.display = "none";
+  document.getElementById("false").style.display = "none";
+
+  // Add retry button
+  const retryButton = document.createElement("button");
+  retryButton.textContent = "Play Again";
+  retryButton.className = "btn";
+  retryButton.style.backgroundColor = "#2ecc71";
+  retryButton.onclick = resetGame;
+  document.querySelector(".container-bottom").appendChild(retryButton);
+}
+
+// Add this new function to reset the game
+function resetGame() {
+  score = 0;
+  questionCount = 0;
+  usedVerses = [];
+  document.getElementById("score").textContent = "Score: 0";
+  document.getElementById("timer").style.display = "block";
+  document.getElementById("true").style.display = "block";
+  document.getElementById("false").style.display = "block";
+
+  // Remove retry button
+  const retryButton = document.querySelector(
+    ".container-bottom button:last-child"
+  );
+  if (retryButton) {
+    retryButton.remove();
   }
 
   getRandomVerse();
 }
 
-// Add event listeners (move outside the checkAnswer function)
+// Event listeners
 document
   .getElementById("true")
   .addEventListener("click", () => checkAnswer(true));
@@ -92,5 +159,35 @@ document
   .getElementById("false")
   .addEventListener("click", () => checkAnswer(false));
 
-// Start game (call the function properly)
+// Start the game
 getRandomVerse();
+
+// Add this function after the variables
+function displayVerse(verse) {
+  if (!verse) return;
+
+  const verseTextElement = document.getElementById("verse-text");
+  const referenceElement = document.getElementById("reference");
+
+  if (verseTextElement && referenceElement) {
+    verseTextElement.textContent = verse.text;
+    referenceElement.textContent = verse.reference;
+  }
+}
+
+// Add this function for the timer
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 15;
+  document.getElementById("timer").textContent = timeLeft;
+
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      getRandomVerse();
+    }
+  }, 1000);
+}
