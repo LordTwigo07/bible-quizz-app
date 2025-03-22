@@ -20,8 +20,8 @@ body {
   align-items: center;
   width: 350px;
   max-width: 80%;
-  height: 550px;
-  background-image: url(./img/téléchargement.jpg);
+  height: 650px;
+  background-image: url(./img/pexels-byrahul-695644.jpg);
   background-position: center;
   background-size: cover;
   background-color: rgba(255, 255, 255, 0.1); /* Very transparent white */
@@ -32,6 +32,7 @@ body {
   color: rgb(132, 95, 95);
   border-radius: 15px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  paddong: 20px;
 }
 .container-top {
   display: flex;
@@ -81,7 +82,7 @@ input {
   margin: 8px auto;
   border: 2px solid #ddd;
   border-radius: 8px;
-  width: 80%;
+  width: 100%;
   font-size: 16px;
   outline: none;
   transition: border-color 0.3s;
@@ -102,11 +103,50 @@ input:focus {
   z-index: 2;
   position: relative;
   margin: 0px;
-  width: 80%;
+  width: 100%;
 }
 #timer {
   font-size: 24px;
   font-weight: bold;
   color: #4a4e69;
   margin: 10px 0;
+}
+
+#start-btn {
+  background-color: #2ecc71;
+  font-size: 20px;
+  padding: 15px 30px;
+  position: absolute;
+  top: 50%;
+  left: 30%;
+
+  margin: 0;
+}
+
+#start-btn.hidden {
+  display: none;
+}
+
+#quiz-content {
+  width: 100%;
+  text-align: center;
+}
+
+.container-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#start-btn:hover {
+  transform: scale(1.05);
+  background-color: #27ae60;
+}
+
+#message {
+  min-height: 30px;
+  margin: 10px 0;
+  font-weight: bold;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
 }

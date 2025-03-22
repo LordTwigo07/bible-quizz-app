@@ -10,15 +10,18 @@
     <div class="container">
       <div class="container-top">
         <h1>Bible Quiz</h1>
-        <p id="timer">15</p>
-        <p id="verse-text"></p>
-        <p id="reference"></p>
-        <p id="message"></p>
-        <p id="score">Score: 0</p>
+        <button id="start-btn" class="btn">Start Quiz</button>
+        <div id="quiz-content" style="display: none">
+          <p id="timer">15</p>
+          <p id="verse-text"></p>
+          <p id="reference"></p>
+          <p id="message"></p>
+          <p id="score">Score: 0</p>
+        </div>
       </div>
       <div class="container-bottom">
-        <button id="true" class="btn">True</button>
-        <button id="false" class="btn">False</button>
+        <button id="true" class="btn" style="display: none">True</button>
+        <button id="false" class="btn" style="display: none">False</button>
       </div>
     </div>
     <script src="script.js"></script>

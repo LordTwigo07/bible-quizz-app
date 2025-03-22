@@ -53,19 +53,26 @@ let questionCount = 0;
 const TOTAL_QUESTIONS = 15;
 
 function getRandomVerse() {
-  const isReal = Math.random() < 0.5;
+  // Ensure true/false distribution is more random
+  const isReal = Math.random() >= 0.5;
   const verses = isReal ? realVerses : fakeVerses;
   const availableVerses = verses.filter((verse) => !usedVerses.includes(verse));
 
+  // If no verses available in current array, try the other array
   if (availableVerses.length === 0) {
     const otherVerses = isReal ? fakeVerses : realVerses;
     const otherAvailable = otherVerses.filter(
       (verse) => !usedVerses.includes(verse)
     );
-    if (otherAvailable.length > 0) {
-      currentVerse =
-        otherAvailable[Math.floor(Math.random() * otherAvailable.length)];
+
+    if (otherAvailable.length === 0) {
+      // Reset used verses if both arrays are exhausted
+      usedVerses = [];
+      return getRandomVerse();
     }
+
+    currentVerse =
+      otherAvailable[Math.floor(Math.random() * otherAvailable.length)];
   } else {
     currentVerse =
       availableVerses[Math.floor(Math.random() * availableVerses.length)];
@@ -76,7 +83,9 @@ function getRandomVerse() {
     displayVerse(currentVerse);
     startTimer();
   }
-  return realVerses.includes(currentVerse);
+
+  // Return actual verse type instead of comparing arrays
+  return currentVerse ? realVerses.includes(currentVerse) : false;
 }
 
 function checkAnswer(userGuessedReal) {
@@ -86,28 +95,41 @@ function checkAnswer(userGuessedReal) {
   const scoreElement = document.getElementById("score");
 
   if (messageElement && scoreElement) {
-    if (userGuessedReal === isReal) {
-      score++;
-      scoreElement.textContent = `Score: ${score}`;
-      messageElement.textContent = "✅ Correct! Well done!";
-      messageElement.style.color = "#2ecc71";
-    } else {
-      messageElement.textContent = "❌ Incorrect! Try again!";
-      messageElement.style.color = "#e74c3c";
-    }
-
-    questionCount++;
-
-    if (questionCount >= TOTAL_QUESTIONS) {
-      endGame();
-      return;
-    }
+    messageElement.style.opacity = "0";
 
     setTimeout(() => {
-      messageElement.textContent = "";
-    }, 2000);
+      if (userGuessedReal === isReal) {
+        score++;
+        scoreElement.textContent = `Score: ${score}`;
+        messageElement.textContent =
+          "✅ Excellent! Your knowledge of Scripture is impressive!";
+        messageElement.style.color = "#2ecc71";
+      } else {
+        messageElement.textContent =
+          "❌ Not quite right. Keep studying the Word!";
+        messageElement.style.color = "#e74c3c";
+      }
 
-    getRandomVerse();
+      messageElement.style.opacity = "1";
+      messageElement.style.transition = "opacity 0.5s ease-in-out";
+
+      // Wait before showing next verse
+      setTimeout(() => {
+        messageElement.style.opacity = "0";
+        setTimeout(() => {
+          messageElement.textContent = "";
+          if (questionCount < TOTAL_QUESTIONS) {
+            getRandomVerse();
+          }
+        }, 500);
+      }, 2500);
+    }, 300);
+  }
+
+  questionCount++;
+  if (questionCount >= TOTAL_QUESTIONS) {
+    endGame();
+    return;
   }
 }
 
@@ -160,9 +182,9 @@ document
   .addEventListener("click", () => checkAnswer(false));
 
 // Start the game
-getRandomVerse();
+// Add this event listener
+document.getElementById("start-btn").addEventListener("click", startGame);
 
-// Add this function after the variables
 function displayVerse(verse) {
   if (!verse) return;
 
@@ -190,4 +212,23 @@ function startTimer() {
       getRandomVerse();
     }
   }, 1000);
+}
+
+function startGame() {
+  gameStarted = true;
+  // Hide start button
+  const startButton = document.getElementById("start-btn");
+  startButton.classList.add("hidden");
+
+  // Show quiz elements
+  document.getElementById("quiz-content").style.display = "block";
+  document.getElementById("true").style.display = "block";
+  document.getElementById("false").style.display = "block";
+
+  // Start the quiz
+  score = 0;
+  questionCount = 0;
+  usedVerses = [];
+  document.getElementById("score").textContent = "Score: 0";
+  getRandomVerse();
 }
