@@ -53,39 +53,46 @@ let questionCount = 0;
 const TOTAL_QUESTIONS = 15;
 
 function getRandomVerse() {
-  // Ensure true/false distribution is more random
-  const isReal = Math.random() >= 0.5;
+  // Keep track of real/fake verse counts
+  const realCount = usedVerses.filter((verse) =>
+    realVerses.includes(verse)
+  ).length;
+  const fakeCount = usedVerses.filter((verse) =>
+    fakeVerses.includes(verse)
+  ).length;
+
+  // Determine if we should force a specific type to maintain balance
+  let isReal;
+  if (questionCount < TOTAL_QUESTIONS - 1) {
+    if (realCount > questionCount / 2) {
+      isReal = false;
+    } else if (fakeCount > questionCount / 2) {
+      isReal = true;
+    } else {
+      isReal = Math.random() >= 0.5;
+    }
+  } else {
+    // For the last question, balance the distribution
+    isReal = realCount < TOTAL_QUESTIONS / 2;
+  }
+
   const verses = isReal ? realVerses : fakeVerses;
   const availableVerses = verses.filter((verse) => !usedVerses.includes(verse));
 
-  // If no verses available in current array, try the other array
   if (availableVerses.length === 0) {
-    const otherVerses = isReal ? fakeVerses : realVerses;
-    const otherAvailable = otherVerses.filter(
-      (verse) => !usedVerses.includes(verse)
+    usedVerses = usedVerses.filter(
+      (verse) => verses !== (isReal ? realVerses : fakeVerses)
     );
-
-    if (otherAvailable.length === 0) {
-      // Reset used verses if both arrays are exhausted
-      usedVerses = [];
-      return getRandomVerse();
-    }
-
-    currentVerse =
-      otherAvailable[Math.floor(Math.random() * otherAvailable.length)];
-  } else {
-    currentVerse =
-      availableVerses[Math.floor(Math.random() * availableVerses.length)];
+    return getRandomVerse();
   }
 
-  if (currentVerse) {
-    usedVerses.push(currentVerse);
-    displayVerse(currentVerse);
-    startTimer();
-  }
+  currentVerse =
+    availableVerses[Math.floor(Math.random() * availableVerses.length)];
+  usedVerses.push(currentVerse);
+  displayVerse(currentVerse);
+  startTimer();
 
-  // Return actual verse type instead of comparing arrays
-  return currentVerse ? realVerses.includes(currentVerse) : false;
+  return isReal;
 }
 
 function checkAnswer(userGuessedReal) {
